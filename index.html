@@ -323,6 +323,71 @@
 
     </div>
 
+    <!-- Audio players for background music and sound effects -->
+    <audio id="background-music" loop>
+        <source src="my-music.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="notebook-sfx">
+        <source src="notebook-turn.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="terminal-sfx" loop>
+        <source src="terminal-flicker.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="click-sfx">
+        <source src="click-sound.mp3" type="audio/mpeg">
+    </audio>
+
+
+    <script>
+        const storyContainer = document.querySelector('.story-container');
+        const backgroundMusic = document.getElementById('background-music');
+        const notebookSfx = document.getElementById('notebook-sfx');
+        const terminalSfx = document.getElementById('terminal-sfx');
+        const clickSfx = document.getElementById('click-sfx');
+        const promptLabels = document.querySelectorAll('.prompt-label');
+        
+        let audioStarted = false;
+
+        function playSound(sound) {
+            if (!sound) return;
+            sound.currentTime = 0;
+            sound.play().catch(e => console.error(`${sound.id} playback failed:`, e));
+        }
+
+        // Start background music on the very first interaction
+        function startInitialAudio() {
+            if (audioStarted) return;
+            audioStarted = true;
+            backgroundMusic.volume = 0.3;
+            playSound(backgroundMusic);
+            console.log("Background audio initiated.");
+            // Remove this initial listener so it doesn't fire again
+            storyContainer.removeEventListener('click', startInitialAudio);
+        }
+        
+        storyContainer.addEventListener('click', startInitialAudio);
+
+        // Add event listeners to all clue buttons
+        promptLabels.forEach(label => {
+            label.addEventListener('click', () => {
+                // Always stop the looping terminal sound unless it's the one being clicked
+                terminalSfx.pause();
+
+                // Play a generic click for poster and map
+                playSound(clickSfx);
+
+                const clueId = label.getAttribute('for');
+
+                if (clueId === 'clue1') {
+                    playSound(notebookSfx);
+                } else if (clueId === 'clue3') {
+                    terminalSfx.volume = 0.5;
+                    playSound(terminalSfx); // This will loop
+                }
+            });
+        });
+    </script>
+
 </body>
 </html>
 
